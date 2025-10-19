@@ -1,1 +1,77 @@
+# Virtual Environment
 venv/
+.venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data Science / Image Processing
+# *.csv
+*.xlsx
+*.xls
+# *.png
+# *.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.svg
+*.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific - Image directories
+front_images/
+back_images/
+front_angled/
+back_angled/
+deskewed_images/
+images_new/
+feature_analysis_graphs/
+
+# Logs
+*.log
+# logs/
+
+# Temporary files
+*.tmp
+*.temp

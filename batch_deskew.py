@@ -18,27 +18,22 @@ def rotate(image: np.ndarray, angle: float, background: Union[int, Tuple[int, in
     return cv2.warpAffine(image, rot_mat, (int(round(height)), int(round(width))), borderValue=background)
 
 def simple_orientation_check(image: np.ndarray) -> bool:
-    """
-    Simple check to determine if an image appears upside down.
-    Returns True if image should be rotated 180°.
-    Uses basic heuristics like content distribution.
-    """
+    """Check if image appears upside down. Returns True if should rotate 180°."""
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if len(image.shape) == 3 else image
-    
+
     # Apply threshold to get text regions
     _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    
+
     h, w = binary.shape
-    
-    # Simple approach: compare content in top 1/3 vs bottom 1/3
+
+    # Compare content in top 1/3 vs bottom 1/3
     top_third = binary[:h//3, :]
     bottom_third = binary[2*h//3:, :]
-    
+
     top_content = np.sum(top_third == 255) / (top_third.shape[0] * top_third.shape[1])
     bottom_content = np.sum(bottom_third == 255) / (bottom_third.shape[0] * bottom_third.shape[1])
-    
+
     # If bottom has significantly more content than top, might be upside down
-    # Using a conservative threshold
     return bottom_content > top_content * 1.8
 
 def deskew_folder(input_dir: str, output_dir: str):
@@ -66,21 +61,19 @@ def deskew_folder(input_dir: str, output_dir: str):
         # If image is taller than wide, rotate to make it landscape
         if h > w:
             if angle > 0:
-                # Positive angle: rotate 90° clockwise
                 rotated = cv2.rotate(rotated, cv2.ROTATE_90_CLOCKWISE)
                 rotation_applied = "90° CW"
             elif angle < 0:
-                # Negative angle: rotate 90° counter-clockwise
                 rotated = cv2.rotate(rotated, cv2.ROTATE_90_COUNTERCLOCKWISE)
                 rotation_applied = "90° CCW"
-            else:  # angle == 0
+            else:
                 # For zero angle, try both orientations and check which looks better
                 option_cw = cv2.rotate(rotated, cv2.ROTATE_90_CLOCKWISE)
                 option_ccw = cv2.rotate(rotated, cv2.ROTATE_90_COUNTERCLOCKWISE)
-                
+
                 cw_upside_down = simple_orientation_check(option_cw)
                 ccw_upside_down = simple_orientation_check(option_ccw)
-                
+
                 if cw_upside_down and not ccw_upside_down:
                     rotated = option_ccw
                     rotation_applied = "90° CCW (CW appeared upside down)"
@@ -88,10 +81,9 @@ def deskew_folder(input_dir: str, output_dir: str):
                     rotated = option_cw
                     rotation_applied = "90° CW (CCW appeared upside down)"
                 else:
-                    # If both or neither appear upside down, default to CW
                     rotated = option_cw
                     rotation_applied = "90° CW (default for zero angle)"
-            
+
             print(f"  -> Applied {rotation_applied} for angle {angle:.2f}°")
 
         output_path = os.path.join(output_dir, filename)
@@ -99,7 +91,7 @@ def deskew_folder(input_dir: str, output_dir: str):
 
         print(f"{filename}: skew={angle:.2f}° | saved shape={rotated.shape}")
 
-# ==== USAGE ====
-input_folder = "images_new"          # Change to your input folder path
-output_folder = "deskewed_images"    # Change to your output folder path
+# Usage
+input_folder = "images_new"
+output_folder = "deskewed_images"
 deskew_folder(input_folder, output_folder)
