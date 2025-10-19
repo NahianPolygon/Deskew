@@ -2,11 +2,11 @@ import os
 import math
 import cv2
 import numpy as np
-from typing import Tuple
+from typing import Tuple, Union
 import random
 import csv
 
-def rotate(image: np.ndarray, angle: float) -> np.ndarray:
+def rotate(image: np.ndarray, angle: float, background: Union[int, Tuple[int, int, int]]) -> np.ndarray:
     old_width, old_height = image.shape[:2]
     angle_radian = math.radians(angle)
     width = abs(np.sin(angle_radian) * old_height) + abs(np.cos(angle_radian) * old_width)
@@ -16,10 +16,7 @@ def rotate(image: np.ndarray, angle: float) -> np.ndarray:
     rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
     rot_mat[1, 2] += (width - old_width) / 2
     rot_mat[0, 2] += (height - old_height) / 2
-
-    # Use BORDER_REPLICATE to extend edge pixels
-    return cv2.warpAffine(image, rot_mat, (int(round(height)), int(round(width))),
-                          borderMode=cv2.BORDER_REPLICATE)
+    return cv2.warpAffine(image, rot_mat, (int(round(height)), int(round(width))), borderValue=background)
 
 def add_random_rotation_to_folder(input_dir: str, output_dir: str, min_angle: float = -15.0, max_angle: float = 15.0, csv_writer=None):
     os.makedirs(output_dir, exist_ok=True)
@@ -40,7 +37,7 @@ def add_random_rotation_to_folder(input_dir: str, output_dir: str, min_angle: fl
 
         random_angle = random.uniform(min_angle, max_angle)
 
-        rotated = rotate(image, random_angle)
+        rotated = rotate(image, random_angle, (255, 255, 255))
 
         output_path = os.path.join(output_dir, filename)
         cv2.imwrite(output_path, rotated)
